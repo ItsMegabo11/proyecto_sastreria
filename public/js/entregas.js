@@ -20,6 +20,18 @@ formulario.addEventListener("submit", guardarEntrega);
 
 document.getElementById("btnCancelar").addEventListener("click", limpiarFormulario);
 
+// ====================== VALIDACIONES ======================
+
+function validarTelefono(phone) {
+    const regex = /^[67]\d{7}$/;
+    return regex.test(phone);
+}
+
+function validarFechaNoPasada(fecha) {
+    const hoy = new Date().toISOString().split("T")[0];
+    return fecha >= hoy;
+}
+
 // ====================== CARGAR COMBOS ======================
 
 async function cargarCombos() {
@@ -63,7 +75,7 @@ async function cargarPedidos() {
     }
 }
 
-// ====================== CARGAR ENTREGAS (CORREGIDO) ======================
+// ====================== CARGAR ENTREGAS ======================
 
 async function cargarEntregas() {
     try {
@@ -74,12 +86,11 @@ async function cargarEntregas() {
             headers: obtenerHeaders()
         });
 
-        if (!response.ok) {
-            throw new Error(`Error HTTP: ${response.status}`);
-        }
+        if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);
 
         const data = await response.json();
-        console.log("Datos de entregas recibidos:", data); // Debug
+        console.log("Datos de entregas recibidos:", data);
+
         const entregas = data.datos || data.data || data || [];
 
         let filas = "";
@@ -88,9 +99,7 @@ async function cargarEntregas() {
             filas = `<tr><td colspan="7" class="text-center">No hay entregas registradas</td></tr>`;
         } else {
             entregas.forEach(entrega => {
-                const fecha = entrega.final_delivery_date 
-                    ? entrega.final_delivery_date.split("T")[0] 
-                    : "Sin fecha";
+                const fecha = entrega.final_delivery_date ? entrega.final_delivery_date.split("T")[0] : "";
 
                 filas += `
                 <tr>
@@ -101,12 +110,8 @@ async function cargarEntregas() {
                     <td>${entrega.order?.id || entrega.order_id || 'N/A'}</td>
                     <td>${entrega.delivery_status?.name || entrega.delivery_status || 'Sin estado'}</td>
                     <td>
-                        <button class="btn btn-warning btn-sm" onclick="editarEntrega(${entrega.id})">
-                            Editar
-                        </button>
-                        <button class="btn btn-danger btn-sm" onclick="eliminarEntrega(${entrega.id})">
-                            Eliminar
-                        </button>
+                        <button class="btn btn-warning btn-sm" onclick="editarEntrega(${entrega.id})">Editar</button>
+                        <button class="btn btn-danger btn-sm" onclick="eliminarEntrega(${entrega.id})">Eliminar</button>
                     </td>
                 </tr>`;
             });
@@ -117,12 +122,7 @@ async function cargarEntregas() {
     } catch (error) {
         console.error("Error al cargar entregas:", error);
         document.getElementById("tabla").innerHTML = `
-            <tr>
-                <td colspan="7" class="text-center text-danger">
-                    Error al cargar las entregas<br>
-                    <small>${error.message}</small>
-                </td>
-            </tr>`;
+            <tr><td colspan="7" class="text-center text-danger">Error al cargar las entregas</td></tr>`;
     }
 }
 
@@ -131,23 +131,31 @@ async function cargarEntregas() {
 async function guardarEntrega(e) {
     e.preventDefault();
 
-    const fechaInput = document.getElementById("final_delivery_date").value;
-    if (fechaInput && new Date(fechaInput) < new Date().setHours(0,0,0,0)) {
+    const final_delivery_date = document.getElementById("final_delivery_date").value;
+    const phone = document.getElementById("phone").value.trim();
+
+    if (!validarFechaNoPasada(final_delivery_date)) {
         alert("La fecha de entrega no puede estar en el pasado");
+        document.getElementById("final_delivery_date").focus();
+        return;
+    }
+
+    if (!validarTelefono(phone)) {
+        alert("El teléfono debe tener 8 dígitos, comenzar con 6 o 7 y solo contener números");
+        document.getElementById("phone").focus();
         return;
     }
 
     const datos = {
-        final_delivery_date: document.getElementById("final_delivery_date").value,
+        final_delivery_date: final_delivery_date,
         delivery_address: document.getElementById("delivery_address").value,
-        phone: document.getElementById("phone").value,
+        phone: phone,
         order_id: document.getElementById("order_id").value,
         delivery_status_id: document.getElementById("delivery_status_id").value
     };
 
     let url = API_URL + "/deliveries";
     let metodo = "POST";
-
     const id = document.getElementById("entrega_id").value;
 
     if (modoEditar && id) {
@@ -196,15 +204,15 @@ async function editarEntrega(id) {
         modoEditar = true;
         window.scrollTo(0, 0);
     } catch (error) {
-        console.error("Error al editar:", error);
-        alert("No se pudo cargar la entrega para editar");
+        console.error("Error al editar entrega:", error);
+        alert("No se pudo cargar la entrega");
     }
 }
 
 // ====================== ELIMINAR ======================
 
 async function eliminarEntrega(id) {
-    if (!confirm("¿Estás seguro de eliminar esta entrega?")) return;
+    if (!confirm("Estas seguro de eliminar esta entrega?")) return;
 
     try {
         await fetch(API_URL + "/deliveries/" + id, {
@@ -213,7 +221,6 @@ async function eliminarEntrega(id) {
         });
         cargarEntregas();
     } catch (error) {
-        console.error(error);
         alert("Error al eliminar la entrega");
     }
 }
@@ -231,7 +238,6 @@ function limpiarFormulario() {
 document.getElementById("buscador").addEventListener("keyup", function () {
     const texto = this.value.toLowerCase();
     const filas = document.querySelectorAll("#tabla tr");
-
     filas.forEach(fila => {
         const contenido = fila.textContent.toLowerCase();
         fila.style.display = contenido.includes(texto) ? "" : "none";

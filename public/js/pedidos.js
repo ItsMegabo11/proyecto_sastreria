@@ -172,17 +172,25 @@ async function guardarPedido(e) {
 
     const order_date = document.getElementById("order_date").value;
     const delivery_date = document.getElementById("delivery_date").value;
+    const price = parseFloat(document.getElementById("price").value);
 
+    // Validación de fechas
     if (!validarFechasPedido(order_date, delivery_date)) {
         alert("La fecha de entrega no puede ser anterior a la fecha del pedido");
         document.getElementById("delivery_date").focus();
         return;
     }
 
+    if (isNaN(price) || price < 0) {
+        alert("El precio no puede ser negativo");
+        document.getElementById("price").focus();
+        return;
+    }
+
     const datos = {
         order_date: order_date,
         delivery_date: delivery_date,
-        price: document.getElementById("price").value,
+        price: price,
         customer_id: document.getElementById("customer_id").value,
         size_id: document.getElementById("size_id").value,
         color_id: document.getElementById("color_id").value,
@@ -241,7 +249,7 @@ async function editarPedido(id) {
         modoEditar = true;
         window.scrollTo(0, 0);
     } catch (error) {
-        console.error("Error al editar:", error);
+        console.error("Error al editar pedido:", error);
         alert("No se pudo cargar el pedido");
     }
 }
@@ -249,7 +257,7 @@ async function editarPedido(id) {
 // ====================== ELIMINAR ======================
 
 async function eliminarPedido(id) {
-    if (!confirm("¿Estás seguro de eliminar este pedido?")) return;
+    if (!confirm("Estas seguro de eliminar este pedido?")) return;
 
     try {
         await fetch(API_URL + "/orders/" + id, {
@@ -262,7 +270,7 @@ async function eliminarPedido(id) {
     }
 }
 
-// ====================== LIMPIAR ======================
+// ====================== LIMPIAR FORMULARIO ======================
 
 function limpiarFormulario() {
     formulario.reset();
@@ -276,6 +284,7 @@ document.getElementById("buscador").addEventListener("keyup", function () {
     const texto = this.value.toLowerCase();
     const filas = document.querySelectorAll("#tabla tr");
     filas.forEach(fila => {
-        fila.style.display = fila.textContent.toLowerCase().includes(texto) ? "" : "none";
+        const contenido = fila.textContent.toLowerCase();
+        fila.style.display = contenido.includes(texto) ? "" : "none";
     });
 });

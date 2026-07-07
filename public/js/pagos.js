@@ -75,12 +75,10 @@ async function cargarPagos() {
             headers: obtenerHeaders()
         });
 
-        if (!response.ok) {
-            throw new Error(`Error HTTP: ${response.status}`);
-        }
+        if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);
 
         const data = await response.json();
-        console.log("Datos de pagos recibidos:", data); // Debug
+        console.log("Datos de pagos recibidos:", data);
 
         const pagos = data.datos || data.data || data || [];
 
@@ -90,9 +88,7 @@ async function cargarPagos() {
             filas = `<tr><td colspan="6" class="text-center">No hay pagos registrados</td></tr>`;
         } else {
             pagos.forEach(pago => {
-                const fecha = pago.payment_date 
-                    ? pago.payment_date.split("T")[0] 
-                    : "Sin fecha";
+                const fecha = pago.payment_date ? pago.payment_date.split("T")[0] : "";
 
                 filas += `
                 <tr>
@@ -102,12 +98,8 @@ async function cargarPagos() {
                     <td>${pago.order?.id || pago.order_id || 'N/A'}</td>
                     <td>${pago.payment_method?.name || pago.payment_method || 'Sin método'}</td>
                     <td>
-                        <button class="btn btn-warning btn-sm" onclick="editarPago(${pago.id})">
-                            Editar
-                        </button>
-                        <button class="btn btn-danger btn-sm" onclick="eliminarPago(${pago.id})">
-                            Eliminar
-                        </button>
+                        <button class="btn btn-warning btn-sm" onclick="editarPago(${pago.id})">Editar</button>
+                        <button class="btn btn-danger btn-sm" onclick="eliminarPago(${pago.id})">Eliminar</button>
                     </td>
                 </tr>`;
             });
@@ -118,12 +110,7 @@ async function cargarPagos() {
     } catch (error) {
         console.error("Error al cargar pagos:", error);
         document.getElementById("tabla").innerHTML = `
-            <tr>
-                <td colspan="6" class="text-center text-danger">
-                    Error al cargar los pagos<br>
-                    <small>${error.message}</small>
-                </td>
-            </tr>`;
+            <tr><td colspan="6" class="text-center text-danger">Error al cargar los pagos</td></tr>`;
     }
 }
 
@@ -132,16 +119,31 @@ async function cargarPagos() {
 async function guardarPago(e) {
     e.preventDefault();
 
+    const amount = parseFloat(document.getElementById("amount").value);
+    const payment_date = document.getElementById("payment_date").value;
+
+    if (isNaN(amount) || amount <= 0) {
+        alert("El monto no puede ser negativo ni cero");
+        document.getElementById("amount").focus();
+        return;
+    }
+
+    const hoy = new Date().toISOString().split("T")[0];
+    if (payment_date < hoy) {
+        alert("La fecha de pago no puede ser anterior a la fecha actual");
+        document.getElementById("payment_date").focus();
+        return;
+    }
+
     const datos = {
-        amount: document.getElementById("amount").value,
-        payment_date: document.getElementById("payment_date").value,
+        amount: amount,
+        payment_date: payment_date,
         order_id: document.getElementById("order_id").value,
         payment_method_id: document.getElementById("payment_method_id").value
     };
 
     let url = API_URL + "/payments";
     let metodo = "POST";
-
     const id = document.getElementById("pago_id").value;
 
     if (modoEditar && id) {
@@ -181,7 +183,7 @@ async function editarPago(id) {
         const pago = data.datos || data.data || data;
 
         document.getElementById("pago_id").value = pago.id;
-        document.getElementById("amount").value = pago.amount;
+        document.getElementById("amount").value = pago.amount || "";
         document.getElementById("payment_date").value = pago.payment_date?.split("T")[0] || "";
         document.getElementById("order_id").value = pago.order_id || pago.order?.id || "";
         document.getElementById("payment_method_id").value = pago.payment_method_id || "";
@@ -190,14 +192,14 @@ async function editarPago(id) {
         window.scrollTo(0, 0);
     } catch (error) {
         console.error("Error al editar pago:", error);
-        alert("No se pudo cargar el pago para editar");
+        alert("No se pudo cargar el pago");
     }
 }
 
 // ====================== ELIMINAR ======================
 
 async function eliminarPago(id) {
-    if (!confirm("¿Estás seguro de eliminar este pago?")) return;
+    if (!confirm("Estas seguro de eliminar este pago?")) return;
 
     try {
         await fetch(API_URL + "/payments/" + id, {
@@ -206,7 +208,6 @@ async function eliminarPago(id) {
         });
         cargarPagos();
     } catch (error) {
-        console.error(error);
         alert("Error al eliminar el pago");
     }
 }
@@ -224,7 +225,6 @@ function limpiarFormulario() {
 document.getElementById("buscador").addEventListener("keyup", function () {
     const texto = this.value.toLowerCase();
     const filas = document.querySelectorAll("#tabla tr");
-
     filas.forEach(fila => {
         const contenido = fila.textContent.toLowerCase();
         fila.style.display = contenido.includes(texto) ? "" : "none";
