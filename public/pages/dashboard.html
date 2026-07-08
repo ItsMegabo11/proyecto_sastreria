@@ -56,7 +56,7 @@
     </section>
     <script>
         const nombreUsuario=localStorage.getItem("nombreUsuario")||"Usuario";
-        document.getElementById("mensajeBienvenida").innerHTML=`Bienvenido ${nombreUsuario} al Sistema de Sastrería "Ponchos Blancos"`;
+        document.getElementById("mensajeBienvenida").innerHTML=`Bienvenido al Sistema de Sastrería "Ponchos Blancos"`;
         function cerrarSesion(){
             localStorage.clear();
             window.location.href="login.html";

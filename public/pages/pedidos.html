@@ -87,90 +87,54 @@
 
         <form id="formPedido">
 
-            <input
-                type="hidden"
-                id="pedido_id">
-
-            <select
-                id="customer_id"
-                class="form-select mb-2"
-                required>
-
-            </select>
-
-            <input
-                type="date"
-                id="order_date"
-                class="form-control mb-2"
-                required>
-
-            <input
-                type="date"
-                id="delivery_date"
-                class="form-control mb-2"
-                required>
-
-            <input
-                type="number"
-                step="0.01"
-                id="price"
-                class="form-control mb-2"
-                placeholder="Precio"
-                required>
-
-            <select
-                id="size_id"
-                class="form-select mb-2"
-                required>
-
-            </select>
-
-            <select
-                id="color_id"
-                class="form-select mb-2"
-                required>
-
-            </select>
-
-            <select
-                id="order_status_id"
-                class="form-select mb-3"
-                required>
-
-            </select>
-
-            <button
-                type="submit"
-                class="btn btn-success">
-
-                Guardar
-
-            </button>
-
-            <button
-                type="button"
-                id="btnCancelar"
-                class="btn btn-secondary">
-
-                Cancelar
-
-            </button>
-
+            <input type="hidden" id="pedido_id">
+            <div class="form-group-custom">
+                <label for="customer_id">Cliente Correspondiente</label>
+                <div class="divider"></div>
+                <select id="customer_id" class="form-select" required></select>
+            </div>
+            <div class="form-group-custom">
+                <label for="order_date">Fecha del Pedido</label>
+                <div class="divider"></div>
+                <input type="date" id="order_date" required>
+            </div>
+            <div class="form-group-custom">
+                <label for="delivery_date">Fecha de Entrega</label>
+                <div class="divider"></div>
+                <input type="date" id="delivery_date" required>
+            </div>
+            <div class="form-group-custom">
+                <label for="price">Precio</label>
+                <div class="divider"></div>
+                <input type="number" step="0.01" id="price" required>
+            </div>
+            <div class="form-group-custom">
+                <label for="size_id">Tamaño</label>
+                <div class="divider"></div>
+                <select id="size_id" class="form-select" required></select>
+            </div>
+            <div class="form-group-custom">
+                <label for="color_id">Color</label>
+                <div class="divider"></div>
+                <select id="color_id" class="form-select" required></select>
+            </div>
+            <div class="form-group-custom">
+                <label for="order_status_id">Estado</label>
+                <div class="divider"></div>
+                <select id="order_status_id" class="form-select" required></select>
+            </div>
+            <button type="submit" class="btn btn-success">Guardar</button>
+            <button type="button" id="btnCancelar" class="btn btn-secondary">Cancelar</button>
         </form>
-
     </article>
-
     <article class="tarjeta-tabla mt-4">
-
         <div class="mb-3">
-
-    <input
-        type="text"
-        id="buscador"
-        class="form-control"
-        placeholder="Buscar registros...">
-
-</div>
+            <input
+                type="text"
+                id="buscador"
+                class="form-control"
+                placeholder="Buscar registros...">
+        </div>
         <table
             class="table table-bordered table-striped">
 

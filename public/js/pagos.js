@@ -121,7 +121,25 @@ async function guardarPago(e) {
 
     const amount = parseFloat(document.getElementById("amount").value);
     const payment_date = document.getElementById("payment_date").value;
+    const order_id = document.getElementById("order_id").value;
 
+    // Recupera los datos del pedido
+    const response = await fetch(API_URL + "/orders/" + order_id, {
+        headers: obtenerHeaders()
+    });
+
+    const data_order = await response.json();
+    const order = data_order.datos || data_order.data || data_order;
+    let total_cost = order.price;
+    
+    // Validación de monto del pedido
+    if (amount > total_cost) {
+        alert("El monto no puede ser mayor al pedido");
+        document.getElementById("amount").focus();
+        return;
+    }
+
+    //Validación del monto mayor a cero o vacío
     if (isNaN(amount) || amount <= 0) {
         alert("El monto no puede ser negativo ni cero");
         document.getElementById("amount").focus();

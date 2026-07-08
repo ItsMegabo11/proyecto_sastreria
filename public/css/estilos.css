@@ -404,3 +404,35 @@ RESPONSIVE
         grid-template-columns:1fr;
     }
 }
+.form-group-custom {
+    display: flex;
+    align-items: center; /* Alinea verticalmente el label, la línea y el input */
+    background-color: #ffffff; /* Fondo blanco para que coincida con tu diseño */
+    border: 1px solid #ccc; /* El borde exterior que ya tienen tus inputs */
+    border-radius: 8px; /* Bordes redondeados */
+    padding: 8px 16px;
+    margin-bottom: 15px; /* Separación con el siguiente campo */
+}
+
+.form-group-custom label {
+    font-weight: bold;
+    color: #333;
+    width: 150px; /* Ancho fijo para que todos los labels midan lo mismo y las líneas se alineen */
+    margin-bottom: 0; /* Quitamos el margen inferior por defecto */
+}
+
+/* La raya divisoria vertical */
+.form-group-custom .divider {
+    width: 1px;
+    height: 24px; /* Altura de la línea */
+    background-color: #d1d5db; /* Color de la línea (gris suave) */
+    margin: 0 15px; /* Espaciado a la izquierda y derecha de la línea */
+}
+
+.form-group-custom input {
+    flex: 1; /* Hace que el input ocupe todo el espacio restante */
+    border: none; /* Quitamos el borde propio del input ya que el contenedor tiene uno */
+    outline: none; /* Evita el borde azul por defecto al hacer click */
+    padding: 4px 0;
+    background: transparent;
+}
