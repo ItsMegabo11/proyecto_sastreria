@@ -49,6 +49,7 @@ if(registroForm){
             alert("Por favor corrija sus errores:\n\n"+errores.join("\n\n"));
             return;
         }
+        
         try{
             const respuesta=await fetch(API+"/auth/registro",{
                 method:"POST",
